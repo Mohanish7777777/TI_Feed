@@ -208,7 +208,7 @@ jobs:
 
           ## Archives (last 7 days)
 
-          """ + "\n".join(f"- [{d}](feeds/archive/{d}/master_feed.json)" for d in archives)
+          """ + "\n".join(f"- [{d}](archive/{d}/master_feed.json)" for d in archives)
 
           Path("feeds/README.md").write_text(md)
           PYEOF
