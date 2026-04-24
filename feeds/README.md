@@ -6,20 +6,20 @@
 
 | Field | Value |
 |---|---|
-| **Last updated** | `2026-04-24T07:30:17Z` |
-| **Total unique IOCs** | `107,155` if isinstance(total, int) else `107155` |
+| **Last updated** | `2026-04-24T08:03:24Z` |
+| **Total unique IOCs** | `108,153` if isinstance(total, int) else `108153` |
 
 ## Download
 
 | Format | Link |
 |---|---|
-| JSON (full metadata) | [master_feed.json](feeds/latest/master_feed.json) |
-| CSV (flat, SIEM-ready) | [master_feed.csv](feeds/latest/master_feed.csv) |
-| STIX 2.1 bundle | [master_feed.stix2.json](feeds/latest/master_feed.stix2.json) |
-| Plain IPs | [by_type/ipv4.txt](feeds/latest/by_type/ipv4.txt) |
-| Plain Domains | [by_type/domain.txt](feeds/latest/by_type/domain.txt) |
-| Plain URLs | [by_type/url.txt](feeds/latest/by_type/url.txt) |
-| Hashes (MD5/SHA1/SHA256) | [by_type/](feeds/latest/by_type/) |
+| JSON (full metadata) | [master_feed.json](latest/master_feed.json) |
+| CSV (flat, SIEM-ready) | [master_feed.csv](latest/master_feed.csv) |
+| STIX 2.1 bundle | [master_feed.stix2.json](latest/master_feed.stix2.json) |
+| Plain IPs | [by_type/ipv4.txt](latest/by_type/ipv4.txt) |
+| Plain Domains | [by_type/domain.txt](latest/by_type/domain.txt) |
+| Plain URLs | [by_type/url.txt](latest/by_type/url.txt) |
+| Hashes (MD5/SHA1/SHA256) | [by_type/](latest/by_type/) |
 
 ## Archives (last 7 days)
 
