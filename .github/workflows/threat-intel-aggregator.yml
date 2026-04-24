@@ -1,0 +1,250 @@
+name: Threat Intel Feed Aggregator
+
+on:
+  # Run every 6 hours
+  schedule:
+    - cron: "0 */6 * * *"
+
+  # Allow manual trigger from GitHub UI with options
+  workflow_dispatch:
+    inputs:
+      formats:
+        description: "Export formats (space-separated: json csv txt stix2)"
+        required: false
+        default: "json csv txt stix2"
+      workers:
+        description: "Parallel fetch threads"
+        required: false
+        default: "15"
+
+  # Also run on push to main (useful for testing feed changes)
+  push:
+    branches: [main]
+    paths:
+      - "threat_intel_aggregator.py"
+      - "feeds.yaml"
+      - ".github/workflows/threat-intel-aggregator.yml"
+
+permissions:
+  contents: write   # needed to commit output files back to repo
+  pages: write      # optional: for GitHub Pages publishing
+  id-token: write
+
+jobs:
+  aggregate:
+    name: Fetch · Parse · Merge · Export
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      # ── 1. Checkout ────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      # ── 2. Python setup ────────────────────────────────────────────────
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      # ── 3. Run aggregator ──────────────────────────────────────────────
+      - name: Run threat intel aggregator
+        env:
+          # Inject run metadata into the script via env vars
+          TIA_RUN_ID: ${{ github.run_id }}
+          TIA_TRIGGERED_BY: ${{ github.event_name }}
+        run: |
+          FORMATS="${{ github.event.inputs.formats || 'json csv txt stix2' }}"
+          WORKERS="${{ github.event.inputs.workers || '15' }}"
+
+          python threat_intel_aggregator.py \
+            --out-dir ./master_feed \
+            --formats $FORMATS \
+            --workers "$WORKERS"
+
+      # ── 4. Generate run summary for GitHub UI ─────────────────────────
+      - name: Write job summary
+        if: always()
+        run: |
+          SUMMARY_FILE="./master_feed/master_feed.json"
+          if [ -f "$SUMMARY_FILE" ]; then
+            TOTAL=$(python3 -c "import json; d=json.load(open('$SUMMARY_FILE')); print(d['total_iocs'])")
+            GENERATED=$(python3 -c "import json; d=json.load(open('$SUMMARY_FILE')); print(d['generated_at'])")
+
+            echo "## 🛡️ Threat Intel Aggregator — Run Summary" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "| Field | Value |" >> $GITHUB_STEP_SUMMARY
+            echo "|---|---|" >> $GITHUB_STEP_SUMMARY
+            echo "| **Generated at** | \`$GENERATED\` |" >> $GITHUB_STEP_SUMMARY
+            echo "| **Total unique IOCs** | \`$TOTAL\` |" >> $GITHUB_STEP_SUMMARY
+            echo "| **Trigger** | \`${{ github.event_name }}\` |" >> $GITHUB_STEP_SUMMARY
+            echo "| **Run ID** | \`${{ github.run_id }}\` |" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+
+            python3 - <<'PYEOF'
+          import json
+          from collections import Counter
+
+          with open("./master_feed/master_feed.json") as f:
+              data = json.load(f)
+
+          iocs = data["iocs"]
+          type_counts  = Counter(i["ioc_type"]   for i in iocs)
+          cat_counts   = Counter(i["category"]    for i in iocs)
+          conf_counts  = Counter(i["confidence"]  for i in iocs)
+
+          lines = []
+          lines.append("### IOC Breakdown by Type")
+          lines.append("| IOC Type | Count |")
+          lines.append("|---|---|")
+          for t, c in type_counts.most_common():
+              lines.append(f"| `{t}` | {c:,} |")
+
+          lines.append("")
+          lines.append("### Confidence Distribution")
+          lines.append("| Confidence | Count |")
+          lines.append("|---|---|")
+          for t, c in conf_counts.most_common():
+              lines.append(f"| `{t}` | {c:,} |")
+
+          lines.append("")
+          lines.append("### Top 10 Categories")
+          lines.append("| Category | Count |")
+          lines.append("|---|---|")
+          for t, c in cat_counts.most_common(10):
+              lines.append(f"| `{t}` | {c:,} |")
+
+          with open("$GITHUB_STEP_SUMMARY", "a") as f:
+              f.write("\n".join(lines) + "\n")
+          PYEOF
+          else
+            echo "## ⚠️ No output file generated — check logs" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      # ── 5. Upload as GitHub Artifact ──────────────────────────────────
+      - name: Upload master feed as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: master-feed-${{ github.run_id }}
+          path: |
+            master_feed/master_feed.json
+            master_feed/master_feed.csv
+            master_feed/master_feed.stix2.json
+            master_feed/by_type/
+          retention-days: 7
+          compression-level: 9
+
+      # ── 6. Commit output back to repo (feeds/ directory) ──────────────
+      - name: Commit updated feeds to repository
+        env:
+          GIT_AUTHOR_NAME: "github-actions[bot]"
+          GIT_AUTHOR_EMAIL: "github-actions[bot]@users.noreply.github.com"
+          GIT_COMMITTER_NAME: "github-actions[bot]"
+          GIT_COMMITTER_EMAIL: "github-actions[bot]@users.noreply.github.com"
+        run: |
+          # Move outputs into versioned feeds/ directory
+          mkdir -p feeds/latest feeds/archive
+
+          # Copy latest outputs
+          cp -r master_feed/. feeds/latest/
+
+          # Archive a timestamped snapshot (keep last 7 days)
+          DATE=$(date -u +"%Y-%m-%d")
+          mkdir -p "feeds/archive/$DATE"
+          cp master_feed/master_feed.json "feeds/archive/$DATE/master_feed.json" 2>/dev/null || true
+          cp master_feed/master_feed.csv  "feeds/archive/$DATE/master_feed.csv"  2>/dev/null || true
+
+          # Remove archive entries older than 7 days
+          find feeds/archive -maxdepth 1 -type d -name "????-??-??" | \
+            sort -r | tail -n +8 | xargs rm -rf
+
+          # Write a feed index README
+          python3 - <<'PYEOF'
+          import json, os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          try:
+              with open("master_feed/master_feed.json") as f:
+                  data = json.load(f)
+              total = data["total_iocs"]
+              ts    = data["generated_at"]
+          except Exception:
+              total = "N/A"
+              ts    = datetime.now(timezone.utc).isoformat()
+
+          archives = sorted([
+              d.name for d in Path("feeds/archive").iterdir() if d.is_dir()
+          ], reverse=True)[:7]
+
+          md = f"""# Threat Intel Master Feed
+
+          > Auto-generated by [Threat Intel Aggregator](.github/workflows/threat-intel-aggregator.yml)
+
+          ## Latest Feed
+
+          | Field | Value |
+          |---|---|
+          | **Last updated** | `{ts}` |
+          | **Total unique IOCs** | `{total:,}` if isinstance(total, int) else `{total}` |
+
+          ## Download
+
+          | Format | Link |
+          |---|---|
+          | JSON (full metadata) | [master_feed.json](feeds/latest/master_feed.json) |
+          | CSV (flat, SIEM-ready) | [master_feed.csv](feeds/latest/master_feed.csv) |
+          | STIX 2.1 bundle | [master_feed.stix2.json](feeds/latest/master_feed.stix2.json) |
+          | Plain IPs | [by_type/ipv4.txt](feeds/latest/by_type/ipv4.txt) |
+          | Plain Domains | [by_type/domain.txt](feeds/latest/by_type/domain.txt) |
+          | Plain URLs | [by_type/url.txt](feeds/latest/by_type/url.txt) |
+          | Hashes (MD5/SHA1/SHA256) | [by_type/](feeds/latest/by_type/) |
+
+          ## Archives (last 7 days)
+
+          """ + "\n".join(f"- [{d}](feeds/archive/{d}/master_feed.json)" for d in archives)
+
+          Path("feeds/README.md").write_text(md)
+          PYEOF
+
+          # Stage, commit and push
+          git config user.name  "$GIT_AUTHOR_NAME"
+          git config user.email "$GIT_AUTHOR_EMAIL"
+
+          git add feeds/
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
+
+          TOTAL=$(python3 -c "
+          import json
+          try:
+            d=json.load(open('master_feed/master_feed.json'))
+            print(d['total_iocs'])
+          except: print('N/A')
+          ")
+          git commit -m "chore(feeds): auto-update $(date -u +'%Y-%m-%d %H:%M UTC') — ${TOTAL} IOCs [skip ci]"
+          git push origin HEAD
+
+      # ── 7. Badge update (optional shields.io endpoint) ─────────────────
+      - name: Update feed badge JSON (shields.io endpoint)
+        run: |
+          if [ -f master_feed/master_feed.json ]; then
+            TOTAL=$(python3 -c "import json; d=json.load(open('master_feed/master_feed.json')); print(d['total_iocs'])")
+            mkdir -p .github/badges
+            cat > .github/badges/ioc-count.json <<EOF
+          {
+            "schemaVersion": 1,
+            "label": "IOCs",
+            "message": "$TOTAL",
+            "color": "blue"
+          }
+          EOF
+            git add .github/badges/ioc-count.json
+            git diff --cached --quiet || git commit -m "chore(badge): update IOC count [skip ci]"
+            git push origin HEAD || true
+          fi
