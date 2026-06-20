@@ -6,8 +6,8 @@
 
 | Field | Value |
 |---|---|
-| **Last updated** | `2026-06-20T14:17:29Z` |
-| **Total unique IOCs** | `104,319` if isinstance(total, int) else `104319` |
+| **Last updated** | `2026-06-20T19:46:38Z` |
+| **Total unique IOCs** | `104,692` if isinstance(total, int) else `104692` |
 
 ## Download
 
