@@ -6,8 +6,8 @@
 
 | Field | Value |
 |---|---|
-| **Last updated** | `2026-06-25T20:10:27Z` |
-| **Total unique IOCs** | `94,159` if isinstance(total, int) else `94159` |
+| **Last updated** | `2026-06-26T04:14:39Z` |
+| **Total unique IOCs** | `90,833` if isinstance(total, int) else `90833` |
 
 ## Download
 
@@ -23,10 +23,10 @@
 
 ## Archives (last 7 days)
 
+- [2026-06-26](archive/2026-06-26/master_feed.json)
 - [2026-06-25](archive/2026-06-25/master_feed.json)
 - [2026-06-24](archive/2026-06-24/master_feed.json)
 - [2026-06-23](archive/2026-06-23/master_feed.json)
 - [2026-06-22](archive/2026-06-22/master_feed.json)
 - [2026-06-21](archive/2026-06-21/master_feed.json)
 - [2026-06-20](archive/2026-06-20/master_feed.json)
-- [2026-06-19](archive/2026-06-19/master_feed.json)
