@@ -30,12 +30,10 @@ abeddao.xyz
 absentagents.xyz
 abudev.xyz
 abujapick.xyz
-abuse.ch
 aclunft.xyz
 activemining.xyz
 adaowns.xyz
 adocoin.xyz
-adsblocklist.txt
 aetnabtc.xyz
 aftertradefi.xyz
 agbanks.xyz
@@ -64,7 +62,6 @@ aimedswapa.xyz
 airedtrust.xyz
 aivaultfactory.xyz
 algokawaii.xyz
-all.txt
 alloweth.xyz
 alphacashai.xyz
 altcoinbottles.xyz
@@ -173,7 +170,6 @@ blakenft.xyz
 blasdao.xyz
 bledswap.xyz
 blinddao.xyz
-blocklist.de
 blotvault.xyz
 blue-tech.xyz
 bogsdao.xyz
@@ -539,7 +535,6 @@ fistnode.xyz
 fogtradea.xyz
 forgedroids.xyz
 friedchain.xyz
-fullipblocklist.txt
 fundah.xyz
 fundedagentive.xyz
 fundhave.xyz
@@ -620,7 +615,6 @@ lineschain.xyz
 linkdogecoin.xyz
 lionauth.xyz
 lipetskkupit.xyz
-lists.blocklist.de
 localcashpay.xyz
 loisdata.xyz
 lokibank.xyz
@@ -634,7 +628,6 @@ m679za.xyz
 macroauth.xyz
 mailclassictrade.xyz
 makercashfund.xyz
-maliciousblocklist.txt
 mapanode.xyz
 maskcoinbank.xyz
 matrader.xyz
@@ -733,7 +726,6 @@ onchainloves.xyz
 opcodedefi.xyz
 opencoinswap.xyz
 orion88.best
-osinthoneypotfeed.txt
 ownagents.xyz
 paramountlawncare.link
 particulastore.shop
@@ -758,8 +750,6 @@ peliculastoday.cc
 peltlabs.xyz
 pentraders.xyz
 pepecoinnode.xyz
-permanentfullipblocklist.txt
-permanentmaliciousdomainlist.txt
 pickstradefi.xyz
 pierobot.xyz
 planetlanguages.xyz
@@ -836,18 +826,11 @@ soakdefi.xyz
 soletradefi.xyz
 solutionsagents.xyz
 soytraders.xyz
-spamblocklist.txt
 spiteagents.xyz
-spydisec.com
 squadtradefi.xyz
 squirmpay.xyz
-ssh.txt
-sslbl.abuse.ch
-sslipblacklist.csv
-sslipblacklist.txt
 stabeth.xyz
 starredcloud.xyz
-stats.json
 stattrade.xyz
 stauth.xyz
 steelmanlabs.xyz
@@ -889,9 +872,6 @@ thea2826.cc
 thebookingbutton.xyz
 theceagents.xyz
 thomsonagents.xyz
-threatfox.abuse.ch
-threatfoxallips.txt
-threatfoxhighconfidenceips.txt
 tiertradefi.xyz
 tiescoin.xyz
 tiredao.xyz
