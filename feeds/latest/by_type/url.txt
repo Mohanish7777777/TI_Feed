@@ -27,4 +27,4 @@ https://sslbl.abuse.ch/blacklist/sslipblacklist.csv;Active
 https://sslbl.abuse.ch/blacklist/sslipblacklist.txt;Active
 https://sslbl.abuse.ch/blacklist/sslipblacklist_aggressive.csv;Active
 https://sslbl.abuse.ch/blacklist/sslipblacklist_aggressive.txt;Active
-https://threatfox.abuse.ch/downloads/hostfile/;Active
+https://threatfox.abuse.ch/downloads/hostfile/;Offline
