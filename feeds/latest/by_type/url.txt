@@ -23,8 +23,8 @@ https://spydisec.com/spamblocklist.txt
 https://spydisec.com/stats.json
 https://spydisec.com/threatfoxallips.txt
 https://spydisec.com/threatfoxhighconfidenceips.txt
-https://sslbl.abuse.ch/blacklist/sslipblacklist.csv;Offline
-https://sslbl.abuse.ch/blacklist/sslipblacklist.txt;Offline
-https://sslbl.abuse.ch/blacklist/sslipblacklist_aggressive.csv;Offline
-https://sslbl.abuse.ch/blacklist/sslipblacklist_aggressive.txt;Offline
+https://sslbl.abuse.ch/blacklist/sslipblacklist.csv;Active
+https://sslbl.abuse.ch/blacklist/sslipblacklist.txt;Active
+https://sslbl.abuse.ch/blacklist/sslipblacklist_aggressive.csv;Active
+https://sslbl.abuse.ch/blacklist/sslipblacklist_aggressive.txt;Active
 https://threatfox.abuse.ch/downloads/hostfile/;Offline
